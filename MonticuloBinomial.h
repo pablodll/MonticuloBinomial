@@ -116,8 +116,59 @@ public:
 	 * Retorno: Clave del minimo extraido
 	*/
 	T borraMin(){
-		MonticuloBinomial<T> m = new MonticuloBinomial<T>();
+		/// Eliminamos el minimo de la lista de nodos del monticulo
 
+		// Buscamos el nodo anterior al minimo
+		Nodo<T>* anterior = NULL;
+		if(_min != _cabeza){ // Si el minimo es la cabeza -> no hay nodo anterior
+			anterior = _cabeza;
+
+			while(anterior->_hermano != _min){
+				anterior = anterior->_hermano;
+			}
+		}
+
+		// Si el minimo esta en la cabeza del monticulo
+		if(anterior == NULL){
+			_cabeza = _min->_hermano; // Añadimos el siguiente nodo a la cabeza
+			_min->_hermano = NULL; // Sacamos al minimo de la lista de nodos
+		}
+		// Si el minimo no esta en la cabeza
+		else {
+			anterior->_hermano = _min->_hermano; // Juntamos el anterior al minimo y el siguiente
+			_min->_hermano = NULL; // Sacamos al minimo de la lista de nodos
+		}
+
+		// Creamos un monticulo auxiliar
+		MonticuloBinomial<T>* m_aux = new MonticuloBinomial<T>();
+
+		/// Añadimos los hijos del minimo extraido al monticulo auxiliar, con el orden invertido
+		Nodo<T>* actual = _min->_hijo;
+		
+		// Desvinculamos al minimo de su lista de hijos
+		_min->_hijo = NULL;
+		actual->_padre = NULL;
+
+		while(actual != NULL){ // Vamos añadiendo los hijos hasta que queden en orden inverso
+			Nodo<T>* temp = actual->_hermano;
+			actual->_hermano = m_aux->_cabeza;
+			m_aux->_cabeza = actual;
+
+			// Actualizamos el minimo
+			m_aux->_min = (m_aux->_min == NULL || m_aux->_min->_clave > actual->_clave) ? actual : m_aux->_min;
+
+			actual = temp;
+		}
+
+		// Guardamos el valor del minimo antes de unir los monticulos
+		T minimo_borrado = _min->_clave;
+
+		// Unimos el monticulo sin el minimo con el monticulo auxiliar
+		MonticuloBinomial<T>* m_union = unir(this, m_aux);
+		this->_cabeza = m_union->_cabeza;
+		this->_min = m_union->_min;
+
+		return minimo_borrado;
 	}
 
 	/*
@@ -193,6 +244,7 @@ public:
 				link(actual, siguiente);
 				actual = siguiente;
 			}
+
 			siguiente = actual->_hermano; 
 		}
 
@@ -232,6 +284,18 @@ private:
 		Nodo<T>* siguiente = NULL; // Puntero al siguiente elemento a añadir a la fusion
 
 		Nodo<T>* temp = NULL;
+
+		// Si alguno de los monticulos es vacio
+		if(m1->_cabeza == NULL && m2->_cabeza != NULL){
+			return m2;
+		}
+		else if(m1->_cabeza != NULL && m2->_cabeza == NULL) {
+			return m1;
+		}
+		else if(m1->_cabeza == NULL && m2->_cabeza == NULL){
+			return m_fusion;
+		}
+		
 
 		// Elegimos la menor de las cabezas como la cabeza de la union
 		if(m1->_cabeza->_grado <= m2->_cabeza->_clave){
