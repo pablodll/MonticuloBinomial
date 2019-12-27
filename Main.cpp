@@ -1,4 +1,5 @@
 #include <iostream>
+#include <Windows.h>
 #include "MonticuloBinomial.h"
 using namespace std;
 
@@ -22,8 +23,13 @@ int main() {
 	//mostrar(m1->minimo());
 	//mostrar(m2->minimo());
 
-	
+	// SYSTEMTIME st
+	// GetSystemTimeAsFileTime(&st);
 	m1->insertar(1);
+	// long long finish = PerformanceCounter();
+
+	//cout << finish - start << endl << endl;
+
 	mostrar(m1->cabeza());
 	mostrar(m1->minimo());
 
