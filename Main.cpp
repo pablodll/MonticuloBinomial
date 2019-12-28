@@ -1,5 +1,6 @@
 #include <iostream>
 #include <Windows.h>
+#include <time.h>
 #include "MonticuloBinomial.h"
 using namespace std;
 
@@ -14,43 +15,32 @@ void mostrar(Nodo<int>* x) {
 }
 
 int main() {
-	Nodo<int>* x1 = new Nodo<int>(2);
-	Nodo<int>* x2 = new Nodo<int>(3);
-	MonticuloBinomial<int>* m1 = new MonticuloBinomial<int>();
-	MonticuloBinomial<int>* m2 = new MonticuloBinomial<int>(x2);
+	//Nodo<int>* x1 = new Nodo<int>(2);
+	//Nodo<int>* x2 = new Nodo<int>(3);
+	//MonticuloBinomial<int>* m2 = new MonticuloBinomial<int>(x2);
 
-	//mostrar(m1->cabeza());
-	//mostrar(m1->minimo());
-	//mostrar(m2->minimo());
+	double t_total = 0;
+	int j = 0;
 
-	// SYSTEMTIME st
-	// GetSystemTimeAsFileTime(&st);
-	m1->insertar(1);
-	// long long finish = PerformanceCounter();
+	for (j = 0; j < 1000; j++) {
+		MonticuloBinomial<int>* m1 = new MonticuloBinomial<int>();
 
-	//cout << finish - start << endl << endl;
+		unsigned long long int start = GetTickCount();
 
-	mostrar(m1->cabeza());
-	mostrar(m1->minimo());
+		for (int i = 0; i < j; i++) {
+			m1->insertar(i);
+		}
 
-	m1->insertar(3);
-	mostrar(m1->cabeza());
-	mostrar(m1->minimo());
+		unsigned long long int end = GetTickCount();
 
-	cout << "BORRADO: " << m1->borraMin() << endl << endl;
-	mostrar(m1->cabeza());
-	mostrar(m1->minimo());
+		int time = end - start;
+		t_total += time;
+		cout << "N = " << j << ", TIME: " << time << "ms" << endl << endl;
 
+		delete m1;
+	}
 
-	//mostrar(MonticuloBinomial<int>::unir(m1, m2)->minimo());
-	//mostrar(m_fusion->minimo());
-	//mostrar(m_fusion->minimo()->_hermano);
-
-	// Nodo<int>* min = m->minimo();
-
-	// mostrar(min);
-	// m->decrecerClave(min, 2);
-	// mostrar(min);
+	cout << "TOTAL TIME: " << t_total / j << "ms" << endl;
 
 	system("PAUSE");
 	return 0;
