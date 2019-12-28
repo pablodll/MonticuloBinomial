@@ -122,6 +122,9 @@ public:
 			}
 		}
 
+		// Guardamos el valor del minimo antes borrarlo
+		T minimo_borrado = _min->_clave;
+
 		// Si el minimo esta en la cabeza del monticulo
 		if(anterior == NULL){
 			_cabeza = _min->_hermano; // Añadimos el siguiente nodo a la cabeza
@@ -133,34 +136,46 @@ public:
 			_min->_hermano = NULL; // Sacamos al minimo de la lista de nodos
 		}
 
-		// Creamos un monticulo auxiliar
-		MonticuloBinomial<T>* m_aux = new MonticuloBinomial<T>();
+		/// Si el minimo extraido tiene hijos, los añadimos a un monticulo auxiliar, con el orden invertido
+		if (_min->_hijo != NULL) {
+			// Creamos un monticulo auxiliar
+			MonticuloBinomial<T>* m_aux = new MonticuloBinomial<T>();
 
-		/// Añadimos los hijos del minimo extraido al monticulo auxiliar, con el orden invertido
-		Nodo<T>* actual = _min->_hijo;
-		
-		// Desvinculamos al minimo de su lista de hijos
-		_min->_hijo = NULL;
-		actual->_padre = NULL;
+			Nodo<T>* actual = _min->_hijo;
 
-		while(actual != NULL){ // Vamos añadiendo los hijos hasta que queden en orden inverso
-			Nodo<T>* temp = actual->_hermano;
-			actual->_hermano = m_aux->_cabeza;
-			m_aux->_cabeza = actual;
+			// Desvinculamos al minimo de su lista de hijos
+			_min->_hijo = NULL;
 
-			// Actualizamos el minimo
-			m_aux->_min = (m_aux->_min == NULL || m_aux->_min->_clave > actual->_clave) ? actual : m_aux->_min;
+			while (actual != NULL) { // Vamos añadiendo los hijos hasta que queden en orden inverso
+				Nodo<T>* temp = actual->_hermano;
+				actual->_hermano = m_aux->_cabeza;
+				m_aux->_cabeza = actual;
 
-			actual = temp;
+				// Desvinculamos a cada hijo de su padre
+				actual->_padre = NULL;
+
+				// Actualizamos el minimo
+				m_aux->_min = (m_aux->_min == NULL || m_aux->_min->_clave > actual->_clave) ? actual : m_aux->_min;
+
+				actual = temp;
+			}
+
+			// Unimos el monticulo sin el minimo con el monticulo auxiliar
+			MonticuloBinomial<T>* m_union = unir(this, m_aux);
+			_cabeza = m_union->_cabeza;
+			_min = m_union->_min;
 		}
 
-		// Guardamos el valor del minimo antes de unir los monticulos
-		T minimo_borrado = _min->_clave;
-
-		// Unimos el monticulo sin el minimo con el monticulo auxiliar
-		MonticuloBinomial<T>* m_union = unir(this, m_aux);
-		this->_cabeza = m_union->_cabeza;
-		this->_min = m_union->_min;
+		// Buscamos el nuevo minimo (recorremos las raices de los arboles binomiales que forman nuestro monticulo)
+		_min = _cabeza;
+		Nodo<T>* actual = _cabeza->_hermano;
+	
+		while(actual != NULL){
+			if(actual->_clave < _min->_clave){
+				_min = actual;
+			}
+			actual = actual->_hermano;
+		}
 
 		return minimo_borrado;
 	}
@@ -192,6 +207,11 @@ public:
 			// Subimos al siguiente padre
 			actual = padre;
 			padre = actual->_padre;
+		}
+
+		// Actualizamos el minimo si es necesario
+		if(nueva_clave < _min->_clave){
+			_min = actual;
 		}
 	}
 
@@ -307,17 +327,17 @@ private:
 
 		while(siguiente != NULL) {
 
-			// Si el nodo actual es de menor grado que el siguiente lo insertamos y pasamos al siguiente nodo
-			if(actual->_grado <= siguiente->_grado){
-				// Comprobamos si el nuevo nodo es menor que el minimo
-				m_fusion->_min = (actual->_clave < m_fusion->_min->_clave) ? actual : m_fusion->_min;
-				
+			// Si el nodo actual es de menor o igual grado que el siguiente lo insertamos y pasamos al siguiente nodo
+			if(actual->_grado <= siguiente->_grado){				
 				// Añadimos el nodo y pasamos al siguiente
 				temp = actual->_hermano;
 				actual->_hermano = siguiente;
 				anterior = actual;
 				actual = siguiente;
 				siguiente = temp;
+
+				// Comprobamos si el nuevo nodo es menor que el minimo
+				m_fusion->_min = (actual->_clave < m_fusion->_min->_clave) ? actual : m_fusion->_min;
 			}
 			// Si el nodo actual es de mayor grado que el siguiente tenemos que meter el siguiente entre medias
 			else{
