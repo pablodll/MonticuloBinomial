@@ -166,15 +166,18 @@ public:
 			_min = m_union->_min;
 		}
 
-		// Buscamos el nuevo minimo (recorremos las raices de los arboles binomiales que forman nuestro monticulo)
+		/// Buscamos el nuevo minimo (recorremos las raices de los arboles binomiales que forman nuestro monticulo)
 		_min = _cabeza;
-		Nodo<T>* actual = _cabeza->_hermano;
-	
-		while(actual != NULL){
-			if(actual->_clave < _min->_clave){
-				_min = actual;
+
+		if(_cabeza != NULL){ // Buscamos el minimo (solo si quedan elementos en el monticulo)
+			Nodo<T>* actual = _cabeza->_hermano;
+
+			while(actual != NULL){
+				if(actual->_clave < _min->_clave){
+					_min = actual;
+				}
+				actual = actual->_hermano;
 			}
-			actual = actual->_hermano;
 		}
 
 		return minimo_borrado;
