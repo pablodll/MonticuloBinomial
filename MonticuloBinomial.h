@@ -18,6 +18,11 @@ public:
 	// CONSTRUCTOR: crea un nodo con clave y padre
 	Nodo(const T clave, Nodo<T>* padre) : _clave(clave), _padre(padre), _hijo(NULL), _hermano(NULL), _grado(0) {}
 
+	~Nodo(){
+		delete _hijo;
+		delete _hermano;
+	}
+
 	/*
 	 * intercambia_claves: Intercambia las claves de dos nodos
 	 *                     (usada en decrecer_clave)
@@ -59,7 +64,8 @@ public:
 	// DESTRUCTOR
 	~MonticuloBinomial() {
 		delete _cabeza;
-		delete _min;
+		_cabeza = nullptr;
+		_min = nullptr;
 	}
 
 	/*
