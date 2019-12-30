@@ -48,7 +48,7 @@ template <class T>
 class MonticuloBinomial {
 private:
 	Nodo<T>* _cabeza; // Puntero a la cabeza del monticulo
-	Nodo<T>* _min; // Puntero al elemento minimo del momticulo
+	Nodo<T>* _min; // Puntero al elemento minimo del monticulo
 
 public:
 	/*
@@ -85,12 +85,12 @@ public:
 		
 		// Unimos los dos monticulos
 		MonticuloBinomial<T>* m_union = unir(this, m_aux);
-		this->_cabeza = m_union->_cabeza;
-		this->_min = m_union->_min;
+		_cabeza = m_union->_cabeza;
+		_min = m_union->_min;
 
 		// Actualizamos el minimo
-		if(_min->_clave > clave) {
-			_min = x;
+		while(_min->_padre != NULL && _min->_padre->_clave == _min->_clave){
+			_min = _min->_padre;
 		}
 	}
 
@@ -161,7 +161,9 @@ public:
 				actual->_padre = NULL;
 
 				// Actualizamos el minimo
-				m_aux->_min = (m_aux->_min == NULL || m_aux->_min->_clave > actual->_clave) ? actual : m_aux->_min;
+				if(m_aux->_min == NULL || m_aux->_min->_clave > actual->_clave){
+					m_aux->_min = actual;
+				}
 
 				actual = temp;
 			}
@@ -172,7 +174,7 @@ public:
 			_min = m_union->_min;
 		}
 
-		/// Buscamos el nuevo minimo (recorremos las raices de los arboles binomiales que forman nuestro monticulo)
+		// Buscamos el nuevo minimo (recorremos las raices de los arboles binomiales que forman nuestro monticulo)
 		_min = _cabeza;
 
 		if(_cabeza != NULL){ // Buscamos el minimo (solo si quedan elementos en el monticulo)
@@ -290,9 +292,9 @@ private:
 	}
 
 	/*
-	 * fusion: Une los arboles de dos monticulos en uno solo
+	 * fusion: Une los arboles de dos monticulos en un solo monticulo,
 	 *         manteniendo el orden de los grados de cada arbol 
-	 *         y el orden de las claves (de menor a mayor)
+	 *         y el orden de las claves
 	 * 
 	 *        (usada en la union de monticulos)
 	 * 
@@ -319,16 +321,21 @@ private:
 			return m_fusion;
 		}
 		
+		// Establecemos el minimo
+		if(m1->_min->_clave <= m2->_min->_clave){
+			m_fusion->_min = m1->_min;
+		}
+		else{
+			m_fusion->_min = m2->_min;
+		}
 
 		// Elegimos la menor de las cabezas como la cabeza de la union
 		if(m1->_cabeza->_grado <= m2->_cabeza->_clave){
 			m_fusion->_cabeza = m1->_cabeza;
-			m_fusion->_min = m_fusion->_cabeza; // Al ser el primer elemento que insertamos sera el minimo
 			siguiente = m2->_cabeza;
 		}
 		else{
 			m_fusion->_cabeza = m2->_cabeza;
-			m_fusion->_min = m_fusion->_cabeza; // Al ser el primer elemento que insertamos sera el minimo
 			siguiente = m1->_cabeza;
 		}
 
@@ -344,9 +351,6 @@ private:
 				anterior = actual;
 				actual = siguiente;
 				siguiente = temp;
-
-				// Comprobamos si el nuevo nodo es menor que el minimo
-				m_fusion->_min = (actual->_clave < m_fusion->_min->_clave) ? actual : m_fusion->_min;
 			}
 			// Si el nodo actual es de mayor grado que el siguiente tenemos que meter el siguiente entre medias
 			else{
@@ -356,9 +360,6 @@ private:
 				else{ // Si solo habiamos añadido la cabeza
 					m_fusion->_cabeza = siguiente;
 				}
-
-				// Comprobamos si el nuevo nodo es menor que el minimo
-				m_fusion->_min = (siguiente->_clave < m_fusion->_min->_clave) ? siguiente : m_fusion->_min;
 
 				temp = siguiente->_hermano;
 				siguiente->_hermano = actual;
