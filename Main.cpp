@@ -1,6 +1,8 @@
 #include <iostream>
 #include <Windows.h>
+#include <stdlib.h>
 #include <time.h>
+#include <fstream>
 #include "MonticuloBinomial.h"
 using namespace std;
 
@@ -14,33 +16,85 @@ void mostrar(Nodo<int>* x) {
 	cout << endl;
 }
 
-int main() {
-	//Nodo<int>* x1 = new Nodo<int>(2);
-	//Nodo<int>* x2 = new Nodo<int>(3);
-	//MonticuloBinomial<int>* m2 = new MonticuloBinomial<int>(x2);
+MonticuloBinomial<int>* crearMonticulo(int n) {
+	MonticuloBinomial<int>* m = new MonticuloBinomial<int>();
 
-	double t_total = 0;
-	int j = 0;
-
-	for (j = 0; j < 1000; j++) {
-		MonticuloBinomial<int>* m1 = new MonticuloBinomial<int>();
-
-		unsigned long long int start = GetTickCount();
-
-		for (int i = 0; i < j; i++) {
-			m1->insertar(i);
-		}
-
-		unsigned long long int end = GetTickCount();
-
-		int time = end - start;
-		t_total += time;
-		cout << "N = " << j << ", TIME: " << time << "ms" << endl << endl;
-
-		delete m1;
+	for (int i = 0; i < n; i++) {
+		int numero = rand() % 100;
+		m->insertar(numero);
 	}
 
-	cout << "TOTAL TIME: " << t_total / j << "ms" << endl;
+	return m;
+}
+
+int main() {
+	srand(time(NULL));
+
+	//int n = 1000;
+	//int elementos = 1000;
+	//double t_total = 0;
+
+	//MonticuloBinomial<int>* m = crearMonticulo(elementos);
+	//for (int i = 0; i < n; i++) {
+	//	LARGE_INTEGER frecuencia;
+	//	LARGE_INTEGER ini;
+	//	LARGE_INTEGER fin;
+
+	//	QueryPerformanceFrequency(&frecuencia);
+ //   	QueryPerformanceCounter(&ini);
+	//	m->borraMin();
+	//	QueryPerformanceCounter(&fin);
+	//	double tiempo = (double)(fin.QuadPart - ini.QuadPart) / frecuencia.QuadPart * 1000; //
+
+	//	cout << elementos << " elementos, iter: " << i << " Tiempo: " << tiempo << endl;
+	//	t_total += tiempo;
+	//	elementos--;
+
+	//}
+	//delete m;
+
+	//cout << endl << "ELEMENTOS: " << elementos << ", TIEMPO MEDIO: " << t_total / n << endl;
+
+	 ofstream archivo;
+	 archivo.open("tiempos.dat");
+	 archivo << "#   X   Y" << endl;
+
+	 //archivo.open("tiempos.dat", ios::app);
+
+	 int elementos;
+	 int n = 1000;
+
+	 for (elementos = 1; elementos < 1000; elementos += 10) {
+		 double t_total = 0;
+
+	 	for (int i = 0; i < n; i++) {
+	 		MonticuloBinomial<int>* m1 = crearMonticulo(elementos);
+			MonticuloBinomial<int>* m2 = crearMonticulo(elementos);
+
+			LARGE_INTEGER frecuencia;
+			LARGE_INTEGER ini;
+			LARGE_INTEGER fin;
+
+	 		QueryPerformanceFrequency(&frecuencia);
+    		QueryPerformanceCounter(&ini);
+			m1 = m1->unir(m1, m2);
+	 		QueryPerformanceCounter(&fin);
+
+			double tiempo = (double)(fin.QuadPart - ini.QuadPart) / frecuencia.QuadPart * 1000; //
+
+	 		//cout << elementos << " elementos, iter: " << i << " Tiempo: " << tiempo << endl;
+	 		t_total += tiempo;
+
+	 		delete m1;
+			delete m2;
+	 	}
+
+	 	cout << endl << "ELEMENTOS: " << elementos << ", TIEMPO MEDIO: " << t_total / n << endl;
+
+	 	archivo << "  " << elementos << "   " << t_total / n << endl;
+	 }
+
+	 archivo.close();
 
 	system("PAUSE");
 	return 0;
