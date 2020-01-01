@@ -1,3 +1,8 @@
+/*
+	PABLO DAURELL MARINA
+	MARP - Monticulo binomial
+*/
+
 #ifndef BINOMIAL_H
 #define BINOMIAL_H
 

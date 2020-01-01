@@ -56,20 +56,18 @@ int main() {
 	//cout << endl << "ELEMENTOS: " << elementos << ", TIEMPO MEDIO: " << t_total / n << endl;
 
 	 ofstream archivo;
-	 archivo.open("tiempos.dat");
-	 archivo << "#   X   Y" << endl;
-
+	 archivo.open("tiempos.dat");  archivo << "#   X   Y" << endl;
 	 //archivo.open("tiempos.dat", ios::app);
 
 	 int elementos;
-	 int n = 1000;
+	 int n = 100;
 
-	 for (elementos = 1; elementos < 1000; elementos += 10) {
+	 for (elementos = 10; elementos <= 1000; elementos += 10) {
 		 double t_total = 0;
 
 	 	for (int i = 0; i < n; i++) {
 	 		MonticuloBinomial<int>* m1 = crearMonticulo(elementos);
-			MonticuloBinomial<int>* m2 = crearMonticulo(elementos);
+			//MonticuloBinomial<int>* m2 = crearMonticulo(elementos);
 
 			LARGE_INTEGER frecuencia;
 			LARGE_INTEGER ini;
@@ -77,7 +75,7 @@ int main() {
 
 	 		QueryPerformanceFrequency(&frecuencia);
     		QueryPerformanceCounter(&ini);
-			m1 = m1->unir(m1, m2);
+			m1->minimo();
 	 		QueryPerformanceCounter(&fin);
 
 			double tiempo = (double)(fin.QuadPart - ini.QuadPart) / frecuencia.QuadPart * 1000; //
@@ -86,7 +84,6 @@ int main() {
 	 		t_total += tiempo;
 
 	 		delete m1;
-			delete m2;
 	 	}
 
 	 	cout << endl << "ELEMENTOS: " << elementos << ", TIEMPO MEDIO: " << t_total / n << endl;
